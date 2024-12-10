@@ -15,7 +15,6 @@ namespace SNACK_MAN
         private int employeeId;
         private string authorityLevel;
 
-        // Constructor nhận tham số authorityLevel và employeeId
         public SaleForm(string authorityLevel, int employeeId)
         {
             InitializeComponent();
@@ -25,10 +24,8 @@ namespace SNACK_MAN
 
         private void btnManageOrder_Click(object sender, EventArgs e)
         {
-            // Khởi tạo form OrderHistory và truyền giá trị authorityLevel, employeeId
             OrderHistory orderHistory = new OrderHistory(this.authorityLevel, this.employeeId);
 
-            // Ẩn form hiện tại và hiển thị form OrderHistory
             this.Hide();
             orderHistory.Show();
         }

@@ -15,13 +15,10 @@ namespace SNACK_MAN
 {
     public partial class ManageProduct : Form
     {        
-        // variable to store the selected product
         private int productId;
 
-        // variable to store the authority level of user, so that we are able to navigate back
         private string authorityLevel;
 
-        // variable to store logged in userId
         private int userId;
         private object employeeId;
 
@@ -75,40 +72,29 @@ namespace SNACK_MAN
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            // Optional: Set file filters (e.g., only allow certain file types)
             openFileDialog.Filter = filter;
 
             openFileDialog.Title = "Select a file to upload";
 
-            // Show the dialog and check if the user selected a file
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // Get the path of the selected file
                 string sourceFilePath = openFileDialog.FileName;
-
-                // Specify the target path relative to the project directory
-                string targetDirectory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads");//sửa
-
-                // Combine the target directory with the file name to get the destination path
-                string targetFilePath = System.IO.Path.Combine(targetDirectory, Path.GetFileName(sourceFilePath));//sửa
+                string targetDirectory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads");
+                string targetFilePath = System.IO.Path.Combine(targetDirectory, Path.GetFileName(sourceFilePath));
 
                 try
                 {
-                    // Ensure the target directory exists
                     if (!System.IO.Directory.Exists(targetDirectory))
                     {
                         System.IO.Directory.CreateDirectory(targetDirectory);
                     }
-                    // Copy the file to the target directory
                     File.Copy(sourceFilePath, targetFilePath, overwrite: true);
 
                     txtProductImg.Text = targetFilePath;
-                    // Inform the user
                     MessageBox.Show("File uploaded successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    // Handle any errors that occur during the file upload
                     MessageBox.Show("Error uploading file: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -139,7 +125,7 @@ namespace SNACK_MAN
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
-                    dtgProduct.DataSource = dataTable; // dtgProduct là tên DataGridView của bạn
+                    dtgProduct.DataSource = dataTable; 
                 }
                 catch (Exception ex)
                 {
@@ -179,36 +165,27 @@ namespace SNACK_MAN
         {
 
             SqlConnection connection = DatabaseConnection.GetConnection();
-            // Check connection
             if (connection != null)
             {
-                // Open the connection
                 connection.Open();
-                // Get data from input
                 string productCode = txtProductCode.Text;
                 string productName = txtProductName.Text;
                 string productImg = txtProductImg.Text;
                 string price = txtProductPrice.Text;
                 string quantity = txtProductQuantity.Text;
                 int categoryId = Convert.ToInt32(cbCategory.SelectedValue);
-                // Validate data
                 if (ValidateData(productCode, productName, price, quantity))
                 {
-                    // declare query
                     string sql = "INSERT INTO Product VALUES (" +
                     "@productCode, @productName, @productPrice, @productQuantity, @productImg, @categoryId)";
-                    // declare sqlcommand variable to manipulate query
                     SqlCommand command = new SqlCommand(sql, connection);
-                    // add params
                     command.Parameters.AddWithValue("productCode", productCode);
                     command.Parameters.AddWithValue("productName", productName);
                     command.Parameters.AddWithValue("productPrice", Convert.ToDouble(price));
                     command.Parameters.AddWithValue("productQuantity", Convert.ToInt32(quantity));
                     command.Parameters.AddWithValue("productImg", productImg);
                     command.Parameters.AddWithValue("categoryId", categoryId);
-                    // execute query and get the result
                     int result = command.ExecuteNonQuery();
-                    // check the result
                     if (result > 0)
                     {
                         MessageBox.Show("Successfully add new product", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -220,7 +197,6 @@ namespace SNACK_MAN
                         MessageBox.Show("Cannot add new product", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                // close the connection
                 connection.Close();
             }
         }
@@ -230,22 +206,17 @@ namespace SNACK_MAN
         {
 
             SqlConnection connection = DatabaseConnection.GetConnection();
-            // Check connection
             if (connection != null)
             {
-                // Open the connection
                 connection.Open();
-                // get input data
                 string productCode = txtProductCode.Text;
                 string productName = txtProductName.Text;
                 string productImg = txtProductImg.Text;
                 string price = txtProductPrice.Text;
                 string quantity = txtProductQuantity.Text;
                 int categoryId = Convert.ToInt32(cbCategory.SelectedValue);
-                // validate data
                 if (ValidateData(productCode, productName, price, quantity))
                 {
-                    // declare query
                     string sql = "UPDATE Product SET ProductCode = @productCode, " +
                         "ProductName = @productName," +
                         "Price = @productPrice," +
@@ -253,9 +224,7 @@ namespace SNACK_MAN
                         "ProductImage = @productImg," +
                         "CategoryID = @categoryId " +
                         "WHERE ProductID = @productId";
-                    // declare sqlcommand variable to manipulate query
                     SqlCommand command = new SqlCommand(sql, connection);
-                    // add params
                     command.Parameters.AddWithValue("productCode", productCode);
                     command.Parameters.AddWithValue("productName", productName);
                     command.Parameters.AddWithValue("productPrice", Convert.ToDouble(price));
@@ -263,7 +232,6 @@ namespace SNACK_MAN
                     command.Parameters.AddWithValue("productImg", productImg);
                     command.Parameters.AddWithValue("categoryId", categoryId);
                     command.Parameters.AddWithValue("productId", this.productId);
-                    // execute query and get the result
                     int result = command.ExecuteNonQuery();
                     // check result
                     if (result > 0)
@@ -284,14 +252,12 @@ namespace SNACK_MAN
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
                     }
-                    // close the connection
                     connection.Close();
                 }
             }
         }
         private void DeleteProduct()
         {
-            // Ask for confirmation
             DialogResult dialogResult = MessageBox.Show("Do you want to delete the product",
             "Warning",
             MessageBoxButtons.OKCancel,
@@ -300,23 +266,14 @@ namespace SNACK_MAN
             {
                 if (!IsProductInOrder(this.productId))
                 {
-                    // Open connection by call the GetConnection function in DatabaseConnection
-                    // class
                     SqlConnection connection = DatabaseConnection.GetConnection();
-                    // Check connection
                     if (connection != null)
                     {
-                        // Open the connection
                         connection.Open();
-                        // declare query
                         string sql = "DELETE Product WHERE ProductID = @productId";
-                        // declare sqlcommand variable to manipulate query
                         SqlCommand command = new SqlCommand(sql, connection);
-                        // add params
                         command.Parameters.AddWithValue("productId", this.productId);
-                        // execute query and get the result
                         int result = command.ExecuteNonQuery();
-                        // check result
                         if (result > 0)
                         {
                             MessageBox.Show(
@@ -350,7 +307,6 @@ namespace SNACK_MAN
             }
         }
 
-
         private bool IsProductInOrder(int productId)
         {
 
@@ -358,9 +314,7 @@ namespace SNACK_MAN
             // Check connection
             if (connection != null)
             {
-                // Open the connection
                 connection.Open();
-                // declare query to get number of record have productId equal productId
                 string sql = "SELECT COUNT(*) FROM OrderDetail WHERE ProductID = @productId";
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.AddWithValue("productId", productId);
@@ -380,15 +334,12 @@ namespace SNACK_MAN
             }
             else
             {
-                // Open connection by call the GetConnection function in DatabaseConnection
-                // class
                 SqlConnection connection = DatabaseConnection.GetConnection();
                 // Check connection
                 if (connection != null)
                 {
                     // Open the connection
                     connection.Open();
-                    // Declare query to the database
                     string sql = "SELECT p.ProductID, p.ProductCode, p.ProductName, p.Price, " +
                     "p. InventoryQuantity, p.ProductImage, c.CategoryName " +
                     "FROM Product p " +
@@ -397,17 +348,11 @@ namespace SNACK_MAN
                     "WHERE p.ProductCode LIKE @search " +
                     "OR p.ProductName LIKE @search " +
                     "OR c.CategoryName LIKE @search";
-                    // Initialize SqlDataAdapter to translate query result to a data table
                     SqlDataAdapter adapter = new SqlDataAdapter(sql, connection);
-                    // Add params to query
                     adapter.SelectCommand.Parameters.AddWithValue("search", "%" + search + "%");
-                    // Initialize data table
                     DataTable data = new DataTable();
-                    // Fill datatable with data queried from database
                     adapter.Fill(data);
-                    // Set the data source for data table
                     dtgProduct.DataSource = data;
-                    // Close the connection
                     connection.Close();
                 }
             }
@@ -435,11 +380,8 @@ namespace SNACK_MAN
 
         private void ManageProduct_Load(object sender, EventArgs e)
         {
-            // binding data to the data gridview
             LoadProductData();
-            // binding data to combobox
             LoadCategoryCombobox();
-            // set status for button to ensure the UX of user
             ChangeButtonStatus(false);
         }
 
@@ -484,7 +426,6 @@ namespace SNACK_MAN
         }
         private void dtgProduct_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Get row index based on current cell (cell clicked)
             int index = dtgProduct.CurrentCell.RowIndex;
             // Check index
             if (index != -1 && !dtgProduct.Rows[index].IsNewRow)
@@ -493,21 +434,16 @@ namespace SNACK_MAN
                 productId = Convert.ToInt32(dtgProduct.Rows[index].Cells[0].Value);
 
                 ChangeButtonStatus(true);
-                // Get the ProductCode (index is 1)
                 txtProductCode.Text = dtgProduct.Rows[index].Cells[1].Value.ToString();
-                // Get the ProductName (index is 2)
                 txtProductName.Text = dtgProduct.Rows[index].Cells[2].Value.ToString();
-                // Get the ProductPrice (index is 3)
                 txtProductPrice.Text = dtgProduct.Rows[index].Cells[3].Value.ToString();
-                // Get the ProductQuantity (index is 4)
                 txtProductQuantity.Text = dtgProduct.Rows[index].Cells[4].Value.ToString();
-                // Get the Img URL (index is 5)
                 txtProductImg.Text = dtgProduct.Rows[index].Cells[5].Value.ToString();
-                // Get the CategoryName (index is 6) and check in combobox to select the equal value
                 string categoryName = dtgProduct.Rows[index].Cells[6].Value.ToString();
                 for (int i = 0; i < cbCategory.Items.Count; i++)
                 {
-                    if (cbCategory.SelectedText == categoryName)
+                    DataRowView rowView = cbCategory.Items[i] as DataRowView;
+                    if (rowView != null && rowView["CategoryName"].ToString() == categoryName)
                     {
                         cbCategory.SelectedIndex = i;
                         break;

@@ -132,15 +132,10 @@ namespace SNACK_MAN
             {
                 connection.Open();
                 string checkCustomerQuery = "SELECT * FROM Employee WHERE EmployeeID = @employeeId";
-                // Declare SqlCommand variable to add parameters to query and execute it
                 SqlCommand command = new SqlCommand(checkCustomerQuery, connection);
-                // Add parameters
                 command.Parameters.AddWithValue("employeeId", employeeId);
-                // Declare SqlDataReader variable to read retrieved data
                 SqlDataReader reader = command.ExecuteReader();
-                // Check if reader has row (query success and return one row show user information)
                 isExist = reader.HasRows;
-                // close the connection
                 connection.Close();
             }
             return isExist;
@@ -250,7 +245,6 @@ namespace SNACK_MAN
         }
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            // Ask for confirmation
             DialogResult result = MessageBox.Show(
             "Do you want to delete this user",
             "Warning",
@@ -265,7 +259,6 @@ namespace SNACK_MAN
 
         private void btnBack_Click(object sender, EventArgs e)
         {
-            // Kiểm tra employeePosition
             if (string.IsNullOrEmpty(employeePosition))
             {
                 MessageBox.Show(
@@ -278,7 +271,6 @@ namespace SNACK_MAN
 
             Form nextForm = null;
 
-            // Kiểm tra nếu form đã mở
             foreach (Form form in Application.OpenForms)
             {
                 if (form is AdminForm && employeePosition == "Admin")
@@ -298,7 +290,6 @@ namespace SNACK_MAN
                 }
             }
 
-            // Nếu form chưa mở, tạo form mới và mở nó
             if (nextForm == null)
             {
                 switch (employeePosition)
@@ -322,16 +313,14 @@ namespace SNACK_MAN
                 }
             }
 
-            // Đóng form hiện tại và hiển thị form mục tiêu
-            this.Close(); // Đóng form hiện tại
+            this.Close();
 
-            // Đảm bảo thoát hoàn toàn ứng dụng khi đóng form cuối cùng
             if (Application.OpenForms.Count == 0)
             {
                 Application.Exit();
             }
 
-            nextForm.Show(); // Hiển thị form mới hoặc đã mở
+            nextForm.Show();
         }
 
 
@@ -364,31 +353,21 @@ namespace SNACK_MAN
             }
             else
             {
-                // Open connection by call the GetConnection function in DatabaseConnection
-                // class
                 SqlConnection connection = DatabaseConnection.GetConnection();
-                // Check connection
                 if (connection != null)
                 {
-                    // Open the connection
                     connection.Open();
-                    // Declare query to the database
                     string query = "SELECT * FROM Employee WHERE EmployeeCode LIKE @search " +
                         "OR EmployeeName LIKE @search " +
                         "OR Position LIKE @search " +
                         "OR AuthorityLevel LIKE @search " +
                         "OR Username LIKE @search " +
                         "OR Password LIKE @search";
-                    // Initialize SqlDataAdapter to translate query result to a data table
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     adapter.SelectCommand.Parameters.AddWithValue("search", "%" + search + "%");
-                    // Initialize data table
                     DataTable table = new DataTable();
-                    // Fill the data set by data querried from the database
                     adapter.Fill(table);
-                    // Set the datasource of data gridview by the dataset
                     dtgEmployee.DataSource = table;
-                    // close the connection
                     connection.Close();
                 }
             }
@@ -400,29 +379,16 @@ namespace SNACK_MAN
         }
         private void dtgEmployee_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Get row index based on current cell (cell clicked)
             int index = dtgEmployee.CurrentCell.RowIndex;
             // Check index
             if (index != -1)
             {
-                // get value of each cell based on row index
-                // you have to check the sql query which is used to load data from database (LoadEmployeeData function)
-                // use this query and execute it in SSMS to imagine the datagridview
-                // the order of the column header is follow: ID | Code | Name | Position | AuthorityLevel | Username | Password | PasswordChanged
-                // and the index is from 0 to 7
-                // Get the employeeID (index is 0)
                 employeeId = Convert.ToInt32(dtgEmployee.Rows[index].Cells[0].Value);
-                // Change the button status by true (update, delete, clear is enable when employeeId is assigned with value > 0)
                 ChangeButtonStatus(true);
-                // Get the employeeCode (index is 1)
                 txtEmployeeCode.Text = dtgEmployee.Rows[index].Cells[1].Value.ToString();
-                // Get the employeeName (index is 2)
                 txtEmployeeName.Text = dtgEmployee.Rows[index].Cells[2].Value.ToString();
-                // Get the employeePosition (index is 3)
                 txtEmployeePosition.Text = dtgEmployee.Rows[index].Cells[3].Value.ToString();
-                // Get the authorityLevel (index is 4)
                 string authorityLevel = dtgEmployee.Rows[index].Cells[4].Value.ToString();
-                // Change the combobox selected index base ont the value of authority level
                 if (authorityLevel == "Admin")
                 {
                     cbAuthorityLevel.SelectedIndex = 0;
@@ -435,9 +401,7 @@ namespace SNACK_MAN
                 {
                     cbAuthorityLevel.SelectedIndex = 2;
                 }
-                // Get the Username (index is 5)
                 txtUsername.Text = dtgEmployee.Rows[index].Cells[5].Value.ToString();
-                // Get the Password (index is 6)
                 txtPassword.Text = dtgEmployee.Rows[index].Cells[6].Value.ToString();
             }
         }
@@ -485,8 +449,6 @@ namespace SNACK_MAN
         }
         private void ChangeButtonStatus(bool buttonStatus)
         {
-            // When employee is selected, button add will be disabled
-            // button Update, Delete & Clear will be enabled and vice versa
             btnUpdate.Enabled = buttonStatus;
             btnDelete.Enabled = buttonStatus;
             btnClear.Enabled = buttonStatus;
@@ -494,7 +456,6 @@ namespace SNACK_MAN
         }
         private void FlushEmployeeId()
         {
-            // Flush employeeId value to check button and setup status for buttons
             this.employeeId = 0;
             ChangeButtonStatus(false);
         }
@@ -525,11 +486,9 @@ namespace SNACK_MAN
         }
         public void InitializeCombobox()
         {
-            // Setup for combobox
             cbAuthorityLevel.Items.Add("Admin");
             cbAuthorityLevel.Items.Add("Warehouse Manager");
             cbAuthorityLevel.Items.Add("Sale");
-            // Set the selected index to the first item of the array (Admin)
             cbAuthorityLevel.SelectedIndex = 0;
         }
     }

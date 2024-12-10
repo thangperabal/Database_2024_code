@@ -289,24 +289,18 @@ namespace SNACK_MAN
             }
             else
             {
-                // Open connection by call the GetConnection function in DatabaseConnection
-                // class
                 SqlConnection connection = DatabaseConnection.GetConnection();
                 // Check connection
                 if (connection != null)
                 {
                     // Open the connection
                     connection.Open();
-                    // Declare query to the database
                     string query = "SELECT * FROM Customer WHERE CustomerCode LIKE @search OR CustomerName LIKE @search OR Phonenumber LIKE @search OR Address LIKE @search";
-                    // Initialize Sq1DataAdapter to translate query result to a data table
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     adapter.SelectCommand.Parameters.AddWithValue("search", "%" + search + "%");
                     // Initialize data table
                     DataTable table = new DataTable();
-                    // Fill the data set by data querried from the database
                     adapter.Fill(table);
-                    // Set the datasource of data gridview by the dataset
                     dtgCustomer.DataSource = table;
                     // close the connection
                     connection.Close();
@@ -316,7 +310,6 @@ namespace SNACK_MAN
 
         private void ManageCustomer_Load(object sender, EventArgs e)
         {
-            // Load data from database to the data gridview
             LoadCustomerData();
         }
 
@@ -327,11 +320,8 @@ namespace SNACK_MAN
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            // Check customer ID
-            // if customerId > 0 (a customer is selected)
             if (customerId > 0)
             {
-                // Ask user for confirmation
                 DialogResult result = MessageBox.Show(
                     "Do you want to delete this customer with all related data?",
                     "Warning", 
@@ -362,11 +352,9 @@ namespace SNACK_MAN
             // Check customerID
             if (customerId > 0)
             {
-                // Check user existence
                 bool isUserExist = CheckUserExistence(customerId);
                 if (isUserExist) 
                 {
-                    // Get data from user input
                     string customerCode = txtCustomerCode.Text;
                     string customerName = txtCustomerName.Text;
                     string customerAddress = txtCustomerAddress.Text;
@@ -468,7 +456,6 @@ namespace SNACK_MAN
         }
         private void ClearData()
         {
-            // Xóa dữ liệu nhập từ người dùng
             txtCustomerCode.Clear();
             txtCustomerName.Clear();
             txtPhonenumber.Clear();

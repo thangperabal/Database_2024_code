@@ -23,7 +23,6 @@ namespace SNACK_MAN
             this.employeeId = employeeId;
         }
 
-        // Phương thức để load lịch sử đơn hàng từ cơ sở dữ liệu
         private void LoadOrderHistory()
         {
             SqlConnection connection = DatabaseConnection.GetConnection();
@@ -43,36 +42,34 @@ namespace SNACK_MAN
                 SqlDataAdapter adapter = new SqlDataAdapter(command);
                 DataTable dataTable = new DataTable();
                 adapter.Fill(dataTable);
-                dtgOrderHistory.DataSource = dataTable;  // Đổ dữ liệu vào DataGridView
+                dtgOrderHistory.DataSource = dataTable;  
             }
         }
 
 
-        // Phương thức chuyển hướng tới các form khác dựa trên quyền hạn của người dùng
         private void RedirectPage()
         {
-            // Dựa trên quyền hạn (authorityLevel), chuyển hướng đến các form tương ứng
             switch (this.authorityLevel)
             {
                 case "Admin":
                     {
                         AdminForm adminForm = new AdminForm(authorityLevel, employeeId);
-                        this.Hide();  // Ẩn form hiện tại
-                        adminForm.Show();  // Hiển thị form Admin
+                        this.Hide();  
+                        adminForm.Show();  
                         break;
                     }
                 case "Warehouse Manager":
                     {
                         WarehouseManagerForm warehouseManagerForm = new WarehouseManagerForm(authorityLevel, employeeId);
-                        this.Hide();  // Ẩn form hiện tại
-                        warehouseManagerForm.Show();  // Hiển thị form Warehouse Manager
+                        this.Hide();  
+                        warehouseManagerForm.Show(); 
                         break;
                     }
                 case "Sale":
                     {
                         ManageCustomer saleForm = new ManageCustomer(authorityLevel, employeeId);
-                        this.Hide();  // Ẩn form hiện tại
-                        saleForm.Show();  // Hiển thị form Sale
+                        this.Hide(); 
+                        saleForm.Show(); 
                         break;
                     }
                 default:
@@ -82,16 +79,13 @@ namespace SNACK_MAN
             }
         }
 
-        // Gọi phương thức load dữ liệu khi form được tải
         private void OrderHistory_Load(object sender, EventArgs e)
         {
-            LoadOrderHistory();  // Gọi hàm LoadOrderHistory khi form tải
+            LoadOrderHistory();  
         }
 
-        // Sự kiện khi nhấn nút Back
         private void btnBack_Click(object sender, EventArgs e)
         {
-            // Quay lại form trước đó dựa trên quyền hạn của người dùng
             RedirectPage();
         }
     }

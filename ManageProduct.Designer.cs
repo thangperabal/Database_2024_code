@@ -7,10 +7,7 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
         /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -256,6 +253,7 @@
             this.dtgProduct.Name = "dtgProduct";
             this.dtgProduct.Size = new System.Drawing.Size(383, 320);
             this.dtgProduct.TabIndex = 0;
+            this.dtgProduct.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtgProduct_CellClick);
             // 
             // btnBack
             // 
