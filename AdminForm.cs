@@ -24,7 +24,7 @@ namespace SNACK_MAN
             InitializeComponent();
             this.authorityLevel = authorityLevel;
             this.employeeId = employeeId;
-            this.employeePosition = authorityLevel; // Gán đúng giá trị
+            this.employeePosition = authorityLevel; 
             this.FormClosing += AdminForm_FormClosing;
         }
 

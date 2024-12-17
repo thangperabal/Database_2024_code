@@ -125,7 +125,7 @@ namespace SNACK_MAN
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
-                    dtgProduct.DataSource = dataTable; 
+                    dtgProduct.DataSource = dataTable;
                 }
                 catch (Exception ex)
                 {
@@ -137,6 +137,7 @@ namespace SNACK_MAN
                 }
             }
         }
+
         private void ClearData()
         {
             FlushProductId();
@@ -176,8 +177,8 @@ namespace SNACK_MAN
                 int categoryId = Convert.ToInt32(cbCategory.SelectedValue);
                 if (ValidateData(productCode, productName, price, quantity))
                 {
-                    string sql = "INSERT INTO Product VALUES (" +
-                    "@productCode, @productName, @productPrice, @productQuantity, @productImg, @categoryId)";
+                    string sql = "INSERT INTO Snacks_BaTuyet (Snacks_BaTuyetCode, Snacks_BaTuyetName, Price, InventoryQuantity, Snacks_BaTuyetImage, CategoryID) " +
+                                 "VALUES (@productCode, @productName, @productPrice, @productQuantity, @productImg, @categoryId)";
                     SqlCommand command = new SqlCommand(sql, connection);
                     command.Parameters.AddWithValue("productCode", productCode);
                     command.Parameters.AddWithValue("productName", productName);
@@ -217,13 +218,13 @@ namespace SNACK_MAN
                 int categoryId = Convert.ToInt32(cbCategory.SelectedValue);
                 if (ValidateData(productCode, productName, price, quantity))
                 {
-                    string sql = "UPDATE Product SET ProductCode = @productCode, " +
-                        "ProductName = @productName," +
-                        "Price = @productPrice," +
-                        "InventoryQuantity = @productQuantity," +
-                        "ProductImage = @productImg," +
-                        "CategoryID = @categoryId " +
-                        "WHERE ProductID = @productId";
+                    string sql = "UPDATE Snacks_BaTuyet SET Snacks_BaTuyetCode = @productCode, " +
+                                 "Snacks_BaTuyetName = @productName, " +
+                                 "Price = @productPrice, " +
+                                 "InventoryQuantity = @productQuantity, " +
+                                 "Snacks_BaTuyetImage = @productImg, " +
+                                 "CategoryID = @categoryId " +
+                                 "WHERE Snacks_BaTuyetID = @productId";
                     SqlCommand command = new SqlCommand(sql, connection);
                     command.Parameters.AddWithValue("productCode", productCode);
                     command.Parameters.AddWithValue("productName", productName);
@@ -270,7 +271,7 @@ namespace SNACK_MAN
                     if (connection != null)
                     {
                         connection.Open();
-                        string sql = "DELETE Product WHERE ProductID = @productId";
+                        string sql = "DELETE FROM Snacks_BaTuyet WHERE Snacks_BaTuyetID = @productId";
                         SqlCommand command = new SqlCommand(sql, connection);
                         command.Parameters.AddWithValue("productId", this.productId);
                         int result = command.ExecuteNonQuery();
@@ -340,14 +341,10 @@ namespace SNACK_MAN
                 {
                     // Open the connection
                     connection.Open();
-                    string sql = "SELECT p.ProductID, p.ProductCode, p.ProductName, p.Price, " +
-                    "p. InventoryQuantity, p.ProductImage, c.CategoryName " +
-                    "FROM Product p " +
-                    "INNER JOIN Category c " +
-                    "ON p.CategoryID = c.CategoryID " +
-                    "WHERE p.ProductCode LIKE @search " +
-                    "OR p.ProductName LIKE @search " +
-                    "OR c.CategoryName LIKE @search";
+                    string sql = "SELECT Snacks_BaTuyetID, Snacks_BaTuyetCode, Snacks_BaTuyetName, Price, InventoryQuantity, Snacks_BaTuyetImage, CategoryName " +
+                                 "FROM Snacks_BaTuyet " +
+                                 "INNER JOIN Category ON Snacks_BaTuyet.CategoryID = Category.CategoryID " +
+                                 "WHERE Snacks_BaTuyetCode LIKE @search OR Snacks_BaTuyetName LIKE @search OR CategoryName LIKE @search";
                     SqlDataAdapter adapter = new SqlDataAdapter(sql, connection);
                     adapter.SelectCommand.Parameters.AddWithValue("search", "%" + search + "%");
                     DataTable data = new DataTable();

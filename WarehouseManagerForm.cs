@@ -26,19 +26,15 @@ public partial class WarehouseManagerForm : Form
 
         private void btnManageProduct_Click(object sender, EventArgs e)
         {
-            // Khởi tạo form ManageProduct với authorityLevel và userId
             ManageProduct manageProduct = new ManageProduct(this.authorityLevel, this.employeeId);
 
-            // Khi form ManageProduct đóng, hiển thị lại AdminForm
             manageProduct.FormClosed += (s, args) =>
             {
-                this.Show(); // Hiển thị lại AdminForm
+                this.Show(); 
             };
 
-            // Ẩn form AdminForm khi mở ManageProduct
             this.Hide();
 
-            // Hiển thị form ManageProduct
             manageProduct.Show();
         }
     }

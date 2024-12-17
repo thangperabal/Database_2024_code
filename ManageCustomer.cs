@@ -29,8 +29,6 @@ namespace SNACK_MAN
         }
         private void ChangeButtonStatus(bool buttonStatus)
         {
-            // When customer is selected, button add will be disabled
-            // button Update, Delete & Clear will be enabled and vice versa
             btnUpdate.Enabled = buttonStatus;
             btnDelete.Enabled = buttonStatus;
             btnClear.Enabled = buttonStatus;
@@ -38,8 +36,6 @@ namespace SNACK_MAN
         }
         private bool ValidateData(string customerCode, string customerName, string customerAddress, string phonenumber)
         {
-            // Validate user input data
-            // Declare isValid variable to check. First we assume all data is valid and check each of it
             bool isValid = true;
             if (customerCode == null || customerCode == string.Empty)
             {
@@ -89,29 +85,21 @@ namespace SNACK_MAN
         }
         private void FlushCustomerId()
         {
-            // Flush customerId value to check button and setup status for buttons
             this.customerId = 0;
             ChangeButtonStatus(false);
         }
         private void LoadCustomerData()
         {
-            // Open connection by call the GetConnection function in DatabaseConnection
-            // class
             SqlConnection connection = DatabaseConnection.GetConnection();
             // Check connection
             if (connection != null)
             {
                 // Open the connection
                 connection.Open();
-                // Declare query to the database
                 string query = "SELECT * FROM Customer";
-                // Initialize 5q1DataAdapter to translate query result to a data table
                 SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                // Initialize data table
                 DataTable table = new DataTable();
-                // Fill the data set by data querried from the database
                 adapter.Fill(table);
-                // Set the datasource of data gridview by the dataset
                 dtgCustomer.DataSource = table;
                 // close the connection
                 connection.Close();
@@ -125,13 +113,9 @@ namespace SNACK_MAN
             {
                 connection.Open();
                 string checkCustomerQuery = "SELECT * FROM Customer WHERE CustomerID = @customerId";
-                // Declare SqlCommand variable to add parameters to query and execute it
                 Microsoft.Data.SqlClient.SqlCommand command = new Microsoft.Data.SqlClient.SqlCommand(checkCustomerQuery, connection);
-                // Add parameters
                 command.Parameters.AddWithValue("customerId", customerId);
-                // Declare SqlDataReader variable to read retrieved data
                 SqlDataReader reader = command.ExecuteReader();
-                // Check if reader has row (query success and return one row show user information)
                 isExist = reader.HasRows;
                 // close the connection
                 connection.Close();
@@ -181,7 +165,6 @@ namespace SNACK_MAN
         }
         private void updateCustomer(int customerId, string customerCode, string customerName, string customerAddress, string phoneNumber)
         {
-            // Initialize database connection by call GetConnection function from DatabaseConnection class
             SqlConnection connection = DatabaseConnection.GetConnection();
             // Check the connection
             if (connection != null)
@@ -218,69 +201,68 @@ namespace SNACK_MAN
                         MessageBoxIcon.Error);
                 }
                 connection.Close();
-                // Clear all user input data and flush customerID
                 ClearData();
-                // Reload the data gridview
                 LoadCustomerData();
             }
         }
-        private void DeleteCustomer(int customerId)
+        public void DeleteCustomer(int customerId)
         {
-            // Initialize database connection by call GetConnection function from DatabaseConnection class
-            SqlConnection connection = DatabaseConnection.GetConnection();
-            // Check the connection
-            if(connection != null){
-                connection.Open();
-                string deleteOrderDetailQuery = "DELETE OrderDetail WHERE OrderDetailID IN " +
-                "(SELECT OrderID FROM Orders WHERE CustomerID = @customerId)";
-                // declare SqlCommand to add params and execute query
-                SqlCommand command = new SqlCommand(deleteOrderDetailQuery, connection);
-                // add parameters
-                command.Parameters.AddWithValue("customerId", customerId);
-                // execute query (We do not need to know the result because this step is used to ensure no execption occur)
-                command.ExecuteNonQuery();
-                // Declare query to delete Orders records
-                string deleteOrderQuery = "DELETE Orders WHERE CustomerID = @customerId";
-                // re-declare SqlCommand with different query
-                command = new SqlCommand(deleteOrderQuery, connection);
-                // add parameters
-                command.Parameters.AddWithValue("customerId", customerId);
-                // execute query (We do not meed to know the result because this step is used to ensure no execption occur)
-                command.ExecuteNonQuery();
-                // Declare query to delete Customer records (Now we can delete Customer record because it is not refered by other records in Order table)
-                string deleteCustomerQuery = "DELETE Customer WHERE CustomerID = @customerId";
-                // re-declare SqlCommand with different query
-                command = new SqlCommand(deleteCustomerQuery, connection);
-                // add parameters
-                command.Parameters.AddWithValue("customerId", customerId);
-                // execute query
-                int deleteCustomerResult = command.ExecuteNonQuery();
-                // Check the result
-                if (deleteCustomerResult > 0)
+            try
+            {
+                SqlConnection connection = DatabaseConnection.GetConnection();
+                if (connection != null)
                 {
-                    MessageBox.Show(
-                        "Successfully delete customer",
-                        "Success",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
-                        );
+                    connection.Open();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string deleteSaleDetailQuery = "DELETE FROM SaleDetail WHERE SaleID IN (SELECT SaleID FROM Sale WHERE CustomerID = @customerId)";
+                            using (SqlCommand command = new SqlCommand(deleteSaleDetailQuery, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@customerId", customerId);
+                                command.ExecuteNonQuery();
+                            }
+
+                            string deleteSaleQuery = "DELETE FROM Sale WHERE CustomerID = @customerId";
+                            using (SqlCommand command = new SqlCommand(deleteSaleQuery, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@customerId", customerId);
+                                command.ExecuteNonQuery();
+                            }
+
+                            string deleteCustomerQuery = "DELETE FROM Customer WHERE CustomerID = @customerId";
+                            using (SqlCommand command = new SqlCommand(deleteCustomerQuery, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@customerId", customerId);
+                                command.ExecuteNonQuery();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            MessageBox.Show($"Error while deleting customer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+
+                    connection.Close();
                 }
-                else
-                {
-                    MessageBox.Show(
-                        "An error occur while deleting customer",
-                        "Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                        );
-                }
-                connection.Close();
-                // Clear all user input data and flush customerID
-                ClearData();
-                // Reload the data gridview
-                LoadCustomerData();
+            }
+            catch (SqlException sqlEx)
+            {
+                MessageBox.Show($"SQL error: {sqlEx.Message}", "SQL Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
+
         private void SearchCustomer(string search)
         {
             if (string.IsNullOrEmpty(search))
@@ -406,7 +388,31 @@ namespace SNACK_MAN
 
         private void dtgProduct_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex >= 0)
+            {
+                object value = dtgCustomer.Rows[e.RowIndex].Cells["CustomerID"].Value;
 
+                if (value != DBNull.Value && value != null)
+                {
+                    try
+                    {
+                        int customerId = Convert.ToInt32(value);
+                        DeleteCustomer(customerId);
+                    }
+                    catch (FormatException ex)
+                    {
+                        MessageBox.Show("The data format is incorrect: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    catch (InvalidCastException ex)
+                    {
+                        MessageBox.Show("Invalid cast: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Customer ID is not valid or is null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void btnBack_Click(object sender, EventArgs e)
