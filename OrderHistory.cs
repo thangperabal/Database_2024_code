@@ -29,14 +29,13 @@ namespace SNACK_MAN
             if (connection != null)
             {
                 connection.Open();
-                string query = "SELECT o.OrderDate, " +
+                string query = "SELECT s.SaleDate, " +
                                "e.EmployeeName, " +
                                "c.CustomerName " +
-                               "FROM Orders o " +
-                               "INNER JOIN Employee e ON o.EmployeeID = e.EmployeeID " +
-                               "INNER JOIN Customer c ON o.CustomerID = c.CustomerID " +
-                               "WHERE o.EmployeeID = @employeeId " +
-                               "GROUP BY o.OrderDate, e.EmployeeName, c.CustomerName";
+                               "FROM Sale s " +
+                               "INNER JOIN Employee e ON s.EmployeeID = e.EmployeeID " +
+                               "INNER JOIN Customer c ON s.CustomerID = c.CustomerID " +
+                               "ORDER BY s.SaleDate";
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@employeeId", employeeId);
                 SqlDataAdapter adapter = new SqlDataAdapter(command);
@@ -45,8 +44,6 @@ namespace SNACK_MAN
                 dtgOrderHistory.DataSource = dataTable;  
             }
         }
-
-
         private void RedirectPage()
         {
             switch (this.authorityLevel)

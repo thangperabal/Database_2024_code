@@ -150,7 +150,7 @@ namespace SNACK_MAN
                 else if (selectedRole == "Warehouse Manager")
                     newForm = new WarehouseManagerForm(selectedRole, employeeId);
                 else if (selectedRole == "Sale")
-                    newForm = new OrderHistory(selectedRole, employeeId);
+                    newForm = new SaleForm(selectedRole, employeeId);
 
                 if (newForm != null)
                 {

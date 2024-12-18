@@ -25,7 +25,7 @@
             // 
             // btnBack
             // 
-            this.btnBack.Location = new System.Drawing.Point(340, 460);
+            this.btnBack.Location = new System.Drawing.Point(462, 386);
             this.btnBack.Name = "btnBack";
             this.btnBack.Size = new System.Drawing.Size(120, 40);
             this.btnBack.TabIndex = 1;
@@ -58,7 +58,7 @@
             // 
             // OrderHistory
             // 
-            this.ClientSize = new System.Drawing.Size(800, 520);
+            this.ClientSize = new System.Drawing.Size(642, 450);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnBack);
             this.Name = "OrderHistory";
